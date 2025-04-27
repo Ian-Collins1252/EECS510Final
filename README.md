@@ -18,6 +18,7 @@ Modeled using a Turing Machine using 2 separate tapes to track each of the input
 ##### States
 - Idle
 - Dialog
+
 While Zelda has a more active role within the narrative, such as sealing Ganon's evil, we are focusing on the playable character aspect of the Legend of Zelda franchise. Thus Zelda is filling her role as a non-playable character
 ###### Dialog
 A pushdown automata that interfaces with Link's dialog options. As mentioned above, Zelda can learn about Link's backstory, similar to in Breath of the Wild, after getting him to warm up to her. What makes Link the happiest is food.
@@ -33,11 +34,11 @@ Again modeled with a pushdown automata, Impa can issue quests to Link to protect
 - Attack
 - King
 - Dead
-####### Attack
+###### Attack
 Ganondorf can battle Link in a duel for the fate of Hyrule.
-####### King
+###### King
 Ganondorf can lie to the King of Hyrule to later betray him and take over his kingdom. Additionally, Ganondorf can defeat Link and either resume or take over the Kingdom of Hyrule.
-####### Dead
+###### Dead
 As most of his stories end, Ganondorf is slain by the Goddess's chosen hero, Link. Until, of course, he is resurrected for the next game.
 ### Bokoblin
 ##### States
