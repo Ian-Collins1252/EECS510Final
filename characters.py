@@ -48,8 +48,6 @@ class Link():
                 return True if string[0] not in {'T', 'Y', 'N'} else False
             case 'F':
                 return True if string[0] not in {'S'} else False
-            case 'Q':
-                return True if string[0] not in {'B'} else False
             case _:
                 return False
     
@@ -83,12 +81,8 @@ class NPC():
         match item:
             case 'E':
                 return True if string[0] not in {'T', 'Y', 'N'} else False
-            case 'B':
-                return True if string[0] not in {''} else False
-            case 'N':
+            case 'Q':
                 return True if string[0] not in {'B'} else False
-            case 'Y':
-                return True if string[0] not in {'Q'} else False
             case _:
                 return False
 
@@ -108,21 +102,6 @@ class Zelda(NPC):
                  'B':'bye'}
         self.name = 'Zelda'
 
-    # Returns a bool on if the converstation string is a valid given the current stack variable
-    def dialog(self, item, string):
-        #Consumes stack item and pushes
-        # [Exposistion, Responce, Quest, Feed, Bye, Story, Yes, No, 'Empty']
-        match item:
-            case 'E':
-                return True if string[0] not in {'T', 'Y', 'N'} else False
-            case 'B':
-                return True if string[0] not in {''} else False
-            case 'N':
-                return True if string[0] not in {'B'} else False
-            case 'Y':
-                return True if string[0] not in {'Q'} else False
-            case _:
-                False
             
 class Impa(NPC):
     def __init__(self):

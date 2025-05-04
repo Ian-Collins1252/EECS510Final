@@ -13,15 +13,14 @@ from characters import Link, Zelda, Impa, NPC
 class Stack():
     def __init__(self):
         self.stack = []
-        self.size = len(self.stack)
 
     def top(self):
-        if self.size > 0:
+        if self.size() > 0:
             return self.stack[0]
         
     def pop(self):
         top = ''
-        if self.size > 0:
+        if self.size() > 0:
             top = self.stack.pop(0)
         return top
 
@@ -29,7 +28,7 @@ class Stack():
         self.stack.insert(0, c)
 
     def size(self):
-        return self.size
+        return len(self.stack)
 
 def accept(w, i):
     # Zelda Dialog Accept String = {E((RTER)+(FS))*R(YQ+N)B}
@@ -62,8 +61,11 @@ def simulate_dialog(link: Link, character: NPC, w: str):
         link.speak('H')
     #Until stack is empty or speech exceeds word length
     while stack.size() != 0 and i < len(w):
+        # Handle accept state outside of given character dialog method for how strings function
+        if stack.top() == 'B' and i + 1 != len(w):
+            return False
         # Verify iteraction is valid
-        if not character.dialog(stack.top(), w[i:]) or not link.dialog(stack.top(), w[i:]):
+        elif not character.dialog(stack.top(), w[i:]) or not link.dialog(stack.top(), w[i:]):
             return False
         # Feeding link consumes nothing from the stack, so this blocks popping anything off the stack
         if w[i] == 'F':
