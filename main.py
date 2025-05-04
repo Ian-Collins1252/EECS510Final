@@ -6,63 +6,134 @@
 # Purpose: Run main simulation of Zelda character interactions
 
 import regex as re
+from random import randint
 from characters import Link, Zelda, Impa, NPC
+
+# Stack for PDA
+class Stack():
+    def __init__(self):
+        self.stack = []
+        self.size = len(self.stack)
+
+    def top(self):
+        if self.size > 0:
+            return self.stack[0]
+        
+    def pop(self):
+        top = ''
+        if self.size > 0:
+            top = self.stack.pop(0)
+        return top
+
+    def push(self, c):
+        self.stack.insert(0, c)
+
+    def size(self):
+        return self.size
 
 def accept(w, i):
     # Zelda Dialog Accept String = {E((RTER)+(FS))*R(YQ+N)B}
     # Impa Dialog Accept String = {ER(TE)*(YQ+N)B}
     match i:
         case 0: # Impa's Dialog
-            accept_str = '^ER(TER)*(YQ|N)B$'
-            x = re.search(accept_str, w)
-            return True if len(w) == x+1 else False
+            accept_str = '^E(TE)*(YQ|N)B$'
+            x = re.match(accept_str, w)
+            return True if x != None else False
         case 1: # Zelda's Dialog
-            accept_str = '^E((RTER)|(FS))*R(YQ|N)B$'
-            x = re.search(accept_str, w)
-            return True if len(w) == x+1 else False
+            accept_str = 'E(FS)*(TE(FS)*)*(YQ|N)B$'
+            x = re.match(accept_str, w)
+            return True if x != None else False
 
 def simulate_dialog(link: Link, character: NPC, w: str):
+    # Setting up structures and string format
+    stack = Stack()
+    stack.push('E')
     w = w.upper().strip()
-    if len(w) >= 3: #Min length of any string in Zelda grammar
-        c = w[0]
-        w = w[1:]
-    else:
+    if len(w) < 3: #Min length of any string in Zelda grammar
         return False
-    cur_character = character
-    while len(w) != 0:
-        if c in {'E', 'Y', 'F', 'N'}: #Determines speaker based on stack item
-            result = character.dialog(c, w)
-            c = w[0]
-            w = '' if len(w) == 1 else w[1:]
-            cur_character = link
-        elif c in {'R', 'S', 'Q'}: #Determines speaker based on stack item
-            result = link.dialog(c, w)
-            c = w[0]
-            w = '' if len(w) == 1 else w[1:]
-            cur_character = character
-        # Escape character
-        elif c in {'B'}:
-            if cur_character == link:
-                result = link.dialog(c, w)
-            else:
-                result = character.dialog(c, w)
-        #Checks if string is invalid
-        if not result:
-            return result
+    i = 1 # Word iterator
+    cur_character = character # Track who is speaking
+    # Greeting (coin flip who speaks first as sometimes Link walks up and interacts (Link speaks first) or gets caught in a cut-scene (character speaks first))
+    if randint(0, 1) == 0:
+        link.speak('H')
+        character.speak('H')
+    else:
+        character.speak('H')
+        link.speak('H')
+    #Until stack is empty or speech exceeds word length
+    while stack.size() != 0 and i < len(w):
+        # Verify iteraction is valid
+        if not character.dialog(stack.top(), w[i:]) or not link.dialog(stack.top(), w[i:]):
+            return False
+        # Feeding link consumes nothing from the stack, so this blocks popping anything off the stack
+        if w[i] == 'F':
+            character.speak('F')
+            i += 1
+            stack.push('F')
+            continue
+        # Consumes stack item and pushes appropriate stack valiable
+        c = stack.pop()
+        match c:
+            case 'E': # Exposistion
+                character.speak(c)
+                i += 1
+                stack.push('R')
+                cur_character = link
+            case 'F': # Feed
+                link.speak('S')
+                i += 1
+                stack.push('E')
+                cur_character = character
+            case 'R': # Responce
+                # Push variable depends upon the following vocab in word
+                if w[i] == 'T':
+                    link.speak(w[i])
+                    i += 1
+                    stack.push('E')
+                elif w[i] == 'Y':
+                    link.speak(w[i])
+                    i += i
+                    stack.push('Q')
+                elif w[i] == 'N':
+                    link.speak(w[i])
+                    i += 1
+                    stack.push('B')
+                cur_character = character
+            case 'Q': # Quest
+                character.speak(c)
+                i += 1
+                stack.push('B')
+                cur_character = link
+            case 'B': # Bye
+                # Correct character responds 
+                if cur_character == link:
+                    link.speak(c)
+                    character.speak(c)
+                    i += 1
+                else:
+                    character.speak(c)
+                    link.speak(c)
+                    i += 1
 
-    return result
-
+    return True
 
 def main():
-    impa_str = ['ERTENB', 'ERYQB', 'B', 'ERTETEYQB', 'ERTERTETQ'] # True, True, False, True, False
-    zelda_str = ['EFSRTERYQB', 'EFSB', 'YQB', 'ERTERFSRNB', 'ERNB'] # True, False, False, True, True
+    impa_str = ['ETENB', 'EYQB', 'B', 'ETETEYQB', 'ETETETQ'] # True, True, False, True, False
+    zelda_str = ['EFSTEYQB', 'EFSB', 'YQB', 'ETEFSNB', 'ENB'] # True, False, False, True, True
+    link = Link()
+    zelda = Zelda()
+    impa = Impa()
+    characters = [impa, zelda]
     test_case = [impa_str, zelda_str]
-    for test, i in enumerate(test_case): # Loop through all test cases 
+    for i, test in enumerate(test_case): # Loop through all test cases 
+        character = characters[i]
         for w in test: # Loop through all strings in test case
             result = accept(w, i)
-            print(f'Accepted String for Impa Dialog? {w}\n{result}\n')
+            print(f'\nAccepted String for {character} Dialog? {w}\n{result}')
+            print(f'Simulate accepted string between {character} and Link for str: {w}')
+            sim_result = simulate_dialog(link, character, w)
+            print(sim_result)
 
-    
 
 if __name__ == "__main__":
     main()

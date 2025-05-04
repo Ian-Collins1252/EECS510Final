@@ -50,9 +50,11 @@ class Link():
                 return True if string[0] not in {'S'} else False
             case 'Q':
                 return True if string[0] not in {'B'} else False
+            case _:
+                return False
     
     def speak(self, i: str):
-        print(f'Link: "{self.vocab[i]}')
+        print(f'Link: "{self.vocab[i]}"')
 
     def print_state(self):
         print(f'Link\'s State: {self.cur_state}')
@@ -71,6 +73,9 @@ class NPC():
         self.cur_state = self.states[0]
         self.name = 'Satori' #RIP
 
+    def name(self):
+        return self.name
+
     # Returns a bool on if the converstation string is a valid given the current stack variable
     def dialog(self, item, string):
         #Consumes stack item and pushes
@@ -84,9 +89,14 @@ class NPC():
                 return True if string[0] not in {'B'} else False
             case 'Y':
                 return True if string[0] not in {'Q'} else False
+            case _:
+                return False
 
     def speak(self, i: str):
-        print(f'{self.name}: "{self.vocab[i]}')
+        print(f'{self.name}: "{self.vocab[i]}"')
+
+    def __str__(self):
+        return f'{self.name}'
     
 class Zelda(NPC):
     def __init__(self):
@@ -111,10 +121,12 @@ class Zelda(NPC):
                 return True if string[0] not in {'B'} else False
             case 'Y':
                 return True if string[0] not in {'Q'} else False
+            case _:
+                False
             
 class Impa(NPC):
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         self.name = 'Impa'
             
 class Enemy():
