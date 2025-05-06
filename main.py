@@ -35,11 +35,11 @@ def accept(w, i):
     # Impa Dialog Accept String = {ER(TE)*(YQ+N)B}
     match i:
         case 0: # Impa's Dialog
-            accept_str = '^E(TE)*(YQ|N)B$'
+            accept_str = '^(HHE)(TE)*(YQ|N)B$'
             x = re.match(accept_str, w)
             return True if x != None else False
         case 1: # Zelda's Dialog
-            accept_str = 'E(FS)*(TE(FS)*)*(YQ|N)B$'
+            accept_str = '^(HHE)(FS)*(TE(FS)*)*(YQ|N)B$'
             x = re.match(accept_str, w)
             return True if x != None else False
 
@@ -50,7 +50,7 @@ def simulate_dialog(link: Link, character: NPC, w: str):
     w = w.upper().strip()
     if len(w) < 3: #Min length of any string in Zelda grammar
         return False
-    i = 1 # Word iterator
+    i = 0 # Word iterator
     cur_character = character # Track who is speaking
     # Greeting (coin flip who speaks first as sometimes Link walks up and interacts (Link speaks first) or gets caught in a cut-scene (character speaks first))
     if randint(0, 1) == 0:
@@ -59,6 +59,7 @@ def simulate_dialog(link: Link, character: NPC, w: str):
     else:
         character.speak('H')
         link.speak('H')
+    i += 2
     #Until stack is empty or speech exceeds word length
     while stack.size() != 0 and i < len(w):
         # Handle accept state outside of given character dialog method for how strings function
@@ -111,17 +112,16 @@ def simulate_dialog(link: Link, character: NPC, w: str):
                 if cur_character == link:
                     link.speak(c)
                     character.speak(c)
-                    i += 1
                 else:
                     character.speak(c)
                     link.speak(c)
-                    i += 1
+                i += 1
 
     return True
 
 def main():
-    impa_str = ['ETENB', 'EYQB', 'B', 'ETETEYQB', 'ETETETQ'] # True, True, False, True, False
-    zelda_str = ['EFSTEYQB', 'EFSB', 'YQB', 'ETEFSNB', 'ENB'] # True, False, False, True, True
+    impa_str = ['HHENB', 'HHEYQB', 'HHEB', 'HHETETEYQB', 'HHETETETQ'] # True, True, False, True, False
+    zelda_str = ['HHEFSTEYQB', 'EFSB', 'YQB', 'HHETEFSNB', 'HHENB'] # True, False, False, True, True
     link = Link()
     zelda = Zelda()
     impa = Impa()
