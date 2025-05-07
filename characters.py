@@ -119,7 +119,7 @@ class Zelda(NPC):
             case 'B':
                 return True if item not in {'B'} else False
             case 'T':
-                return True if item not in {'T'} else False
+                return True if item not in {'E'} else False
             case 'Q':
                 return True if item not in {'Q'} else False
             case _:
