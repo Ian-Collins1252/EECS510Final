@@ -64,9 +64,11 @@ def simulate_dialog(link: Link, character: NPC, w: str):
     while stack.size() != 0 and i < len(w):
         # Handle accept state outside of given character dialog method for how strings function
         if stack.top() == 'B' and i + 1 != len(w):
+            print('unaccpet bye char')
             return False
         # Verify iteraction is valid
         elif not character.dialog(stack.top(), w[i:]) or not link.dialog(stack.top(), w[i:]):
+            print('invalid interaction on either side')
             return False
         # Feeding link consumes nothing from the stack, so this blocks popping anything off the stack
         if w[i] == 'F':

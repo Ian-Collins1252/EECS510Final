@@ -9,16 +9,16 @@ class Link():
     def __init__(self):
         self.states = ['Idle', 'Eat', 'Fight', 'Dialog']
         self.vocab = {'I':'idle', 
-                 'H':'hi', 
-                 'Y':'yes',
-                 'N':'no', 
-                 'T':'tell', 
-                 'F':'fight', 
-                 'W':'win', 
-                 'R':'retreat', 
-                 'E':'eat', 
-                 'S':'backstory', 
-                 'B':'bye'}
+                      'H':'hi', 
+                      'Y':'yes',
+                      'N':'no', 
+                      'T':'tell', 
+                      'F':'fight', 
+                      'W':'win', 
+                      'R':'retreat', 
+                      'E':'eat', 
+                      'S':'backstory', 
+                      'B':'bye'}
         self.cur_state = self.states[0]
         self.health = 5
         self.if_sheild = False
@@ -64,10 +64,10 @@ class NPC():
     def __init__(self):
         self.states = ['Idle', 'Dialog']
         self.vocab = {'I':'idle',
-                 'H':'hi',
-                 'E':'exposition',
-                 'Q':'quest',
-                 'B':'bye'}
+                      'H':'hi',
+                      'E':'exposition',
+                      'Q':'quest',
+                      'B':'bye'}
         self.cur_state = self.states[0]
         self.name = 'Satori' #RIP
 
@@ -95,13 +95,12 @@ class NPC():
 class Zelda(NPC):
     def __init__(self):
         self.vocab = {'I':'idle',
-                 'H':'hi',
-                 'E':'exposition',
-                 'Q':'quest',
-                 'F':'feed',
-                 'B':'bye'}
+                      'H':'hi',
+                      'E':'exposition',
+                      'Q':'quest',
+                      'F':'feed',
+                      'B':'bye'}
         self.name = 'Zelda'
-
             
 class Impa(NPC):
     def __init__(self):
