@@ -1,0 +1,70 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{tikz-automata}
+\usetikzlibrary{automata, positioning, arrows}
+
+\title{EECS 510 Final Project}
+\author{Del Endecott, Ian Collins, Zeidan Abdelrahman}
+\date{May 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\begin{figure}[ht]
+    \centering % centers the figure   
+    \begin{tikzpicture}[node distance=2.5cm, ->, >=stealth']
+        \node[state, initial] (q0) {$q_0$};
+        \node[state, right of=q0] (q1) {$q_1$};
+        \node[state, right of=q1] (q2) {$q_2$};
+        \node[state, right of=q2] (q3) {$q_3$};
+        \node[state, below of=q2] (q4) {$q_4$};
+        \node[state, right of=q3] (q5) {$q_5$};
+        \node[state, right of=q5, accepting] (q6) {$q_6$};
+        \draw (q0) edge[below, bend right] node{$E$} (q1)
+              (q1) edge[above, bend right] node{$T$} (q0)
+              (q1) edge[above] node{$Y$} (q2)
+              (q1) edge[left] node{$N$} (q4)
+              (q2) edge[above] node{$Q$} (q3)
+              (q3) edge[above] node{$B$} (q5)
+              (q4) edge[below] node{$B$} (q5)
+              (q5) edge[above] node{$B$} (q6)
+    \end{tikzpicture}
+    \caption{NFA of accepted dialog between Link and Impa}
+    \label{fig:my_label}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering % centers the figure   
+    \begin{tikzpicture}[node distance=2.5cm, ->, >=stealth']
+        \node[state, initial] (q0) {$q_0$};
+        \node[state, below of=q0] (q1) {$q_1$};
+        \node[state, right of=q0] (q2) {$q_2$};
+        \node[state, right of=q2] (q3) {$q_3$};
+        \node[state, below of=q3] (q4) {$q_4$};
+        \node[state, right of=q3] (q5) {$q_5$};
+        \node[state, right of=q5] (q6) {$q_6$};
+        \node[state, right of=q4] (q7) {$q_7$};
+        \node[state, right of=q7] (q8) {$q_8$};
+        \node[state, right of=q8, accepting] (q9) {$q_9$};
+        \draw (q0) edge[below, bend right] node{$E$} (q2)
+              (q0) edge[left, bend right, right=.1] node{$F$} (q1)
+              (q1) edge[right, bend right, right=.1] node{$S$} (q0)
+              (q2) edge[above, bend right] node{$T$} (q0)
+              (q2) edge[above] node{$E$} (q3)
+              (q3) edge[left, bend right, right=.1] node{$F$} (q4)
+              (q3) edge[above] node{$Y$} (q5)
+              (q3) edge[above] node{$N$} (q7)
+              (q4) edge[right, bend right, right=.1] node{$S$} (q3)
+              (q5) edge[above] node{$Q$} (q6)
+              (q6) edge[right] node{$B$} (q8)
+              (q7) edge[above] node{$B$} (q8)
+              (q8) edge[above] node{$B$} (q9);
+    \end{tikzpicture}
+    \caption{NFA of accepted dialog between Link and Zelda}
+    \label{fig:my_label}
+\end{figure}
+
+\end{document}
