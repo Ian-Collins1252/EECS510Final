@@ -7,6 +7,7 @@
 
 class Link():
     def __init__(self):
+        self.name = 'Link'
         self.states = ['Idle', 'Eat', 'Fight', 'Dialog']
         self.vocab = {'I':'idle', 
                       'H':'hi', 
@@ -39,30 +40,14 @@ class Link():
         else:
             self.cur_state = transitions[(self.cur_state, input)]
 
-    # Returns a bool on if the converstation string is a valid given the current stack variable
-    def dialog(self, item, word):
-        #Consumes stack item and pushes
-        # [Exposistion, Responce, Quest, Feed, Bye, Story, Yes, No, 'Empty']      
-        match word:
-            case 'Y':
-                return True if item not in {'R'} else False
-            case 'N':
-                return True if item not in {'R'} else False
-            case 'T':
-                return True if item not in {'R'} else False
-            case 'S':
-                return True if item not in {'F'} else False
-            case _:
-                return False
-    
     def speak(self, i: str):
         print(f'Link: "{self.vocab[i]}"')
 
     def print_state(self):
         print(f'Link\'s State: {self.cur_state}')
 
-    # TODO: Create interface for Turing Machine combat
-
+    def __eq__(self, other):
+        return self.name == other.name
 
 class NPC():
     def __init__(self):
@@ -78,26 +63,14 @@ class NPC():
     def name(self):
         return self.name
 
-    # Returns a bool on if the converstation string is a valid given the current stack variable
-    def dialog(self, item, word):
-        #Consumes stack item and pushes
-        # [Exposistion, Responce, Quest, Feed, Bye, Story, Yes, No, 'Empty']
-        match word:
-            case 'E':
-                return True if item not in {'E'} else False
-            case 'B':
-                return True if item not in {'B'} else False
-            case 'Q':
-                return True if item not in {'Q'} else False
-            case _:
-                return False
-            
-
     def speak(self, i: str):
         print(f'{self.name}: "{self.vocab[i]}"')
 
     def __str__(self):
         return f'{self.name}'
+    
+    def __eq__(self, other):
+        return self.name == other.name
     
 class Zelda(NPC):
     def __init__(self):
@@ -109,22 +82,6 @@ class Zelda(NPC):
                       'B':'bye'}
         self.name = 'Zelda'
 
-    # Returns a bool on if the converstation string is a valid given the current stack variable
-    def dialog(self, item, word):
-        #Consumes stack item and pushes
-        # [Exposistion, Responce, Quest, Feed, Bye, Story, Yes, No, 'Empty']
-        match word:
-            case 'E':
-                return True if item not in {'E', 'F'} else False
-            case 'B':
-                return True if item not in {'B'} else False
-            case 'T':
-                return True if item not in {'E'} else False
-            case 'Q':
-                return True if item not in {'Q'} else False
-            case _:
-                return False
-            
 class Impa(NPC):
     def __init__(self):
         super().__init__()
