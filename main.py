@@ -13,19 +13,11 @@ def accept(w, i):
     # Impa Dialog Accept String = {ER(TE)*(YQ+N)B}
     match i:
         case 0: # Impa's Dialog
-<<<<<<< HEAD
-            accept_str = '^(E)(TE)*(YQ|N)B$'
-            x = re.match(accept_str, w)
-            return True if x != None else False
-        case 1: # Zelda's Dialog
-            accept_str = '^(E)(FS)*(TE(FS)*)*(YQ|N)B$'
-=======
             accept_str = '^(E)(TE)*(YQ|N)(BB)$'
             x = re.match(accept_str, w)
             return True if x != None else False
         case 1: # Zelda's Dialog
             accept_str = '^(E)(FS)*(TE(FS)*)*(YQ|N)(BB)$'
->>>>>>> 0ad7741d8f67dcd8c16972eb7b4e082fe08264e3
             x = re.match(accept_str, w)
             return True if x != None else False
 
@@ -95,13 +87,8 @@ def simulate_dialog(link: Link, character: NPC, w: str):
     return True
 
 def main():
-<<<<<<< HEAD
-    impa_str = ['ENB', 'EYQB', 'EB', 'ETETEYQB', 'ETETETQ'] # True, True, False, True, False
-    zelda_str = ['EFSTEYQB', 'EFSB', 'YQB', 'ETEFSNB', 'ENB'] # True, False, False, True, True
-=======
     impa_str = ['ENBB', 'EYQBB', 'FETEYQBB' 'ETETEYQBB', 'ETETETBB'] # True, True, False, True, False
     zelda_str = ['EFSTEYQBB', 'EFSBB', 'YQB', 'ETEFSNBB', 'ENBB'] # True, False, False, True, True
->>>>>>> 0ad7741d8f67dcd8c16972eb7b4e082fe08264e3
     link = Link()
     zelda = Zelda()
     impa = Impa()
