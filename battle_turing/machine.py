@@ -112,16 +112,44 @@ class Machine():
                 self.T3.left() # move left, back onto the lowercase so bomb 2 will reset it to uppercase
                 current = 5 # back to bomb 2
             
-            case 7: # swap [0,8]
+            case 7: # swap [0,8,11,12]
+                self.T1.left_until('end') # reset both health tapes
+                self.T3.left_until('end') 
                 
-                if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
-                    self.T4.right_until('V')
-                else: 
-                    self.T4.right_until('G') 
+                if self.T4.tape.count('V') > 0 or self.T4.tape.count('G') > 0:
+                    if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
+                        self.T4.right_until('V')
+                        current = 11 # enemy turn
+                    else: 
+                        self.T4.right_until('G')
+                        current = 12 # ganon's turn
+                    
+                else: # if there are no more V or G in T4
+                    current = 8 # go to status and do a health check
             
-            case 8:
-                pass
-            
+            case 8: # status [0,9,15] check to see if anyone's dead
+                # create a temp list with only health chars on it to check if link is alive
+                temp = self.t1.tape
+                try: 
+                    temp = self.T1.tape.remove('O') # remove shield if it's there
+                except: 
+                    continue # if no shield, no need to do anything
+                try: 
+                    temp = self.T1.tape.remove('P') # remove potion charge if it's there
+                except: 
+                    continue # if not no need to do anything
+                
+                if not temp: # if the temp string is empty
+                    current = 15 # link is dead, stop the machine
+                    break
+                
+                # now check if any enemies have died
+                if self.T3.tape.count('V') > 0 or self.T3.tape.count('G') > 0:
+                    if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
+                        self.T3.right_until('V')
+                    else: 
+                        self.T3.right_until('G')
+                            
             case 9:
                 pass
             

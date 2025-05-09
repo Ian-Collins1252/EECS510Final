@@ -38,15 +38,13 @@ class Tape():
     def pop(self): #remove char at head's position. note that head technically moves right after pop by default
         self.tape.pop(self.head)
         
-    def if_in(self,char):
-        try: 
-        
     def left_until(self, char): # move left until a specified character is found (or tape ends)
         if char != 'end': # look for a character
            try:
                self.head = self.tape.index(char, 0, self.head) # throws an error if char not found
            except:
-               print(f"rejected, machine broke (char {char} not present)") # placeholder for troubleshooting
+               print(f"char {char} not present, moving to end") # placeholder for troubleshooting
+               self.head = 0
         else: # move to the leftmost end
             self.head = 0
             
@@ -55,7 +53,8 @@ class Tape():
            try:
                self.head = self.tape.index(char, self.head) # throws an error if char not found
            except:
-               print(f"rejected, machine broke (char {char} not present)") # placeholder for troubleshooting
+               print(f"char {char} not present, moving to end") # placeholder for troubleshooting
+               self.head = len(self.tape-1)
         else: # move to the rightmost end
             self.head = len(self.tape-1)
     
