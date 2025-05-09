@@ -29,3 +29,9 @@ def main(s1, s2, s3, s4):
     state = 0 # start in state 0
     while state != 15: # while not in the halt state
         m.state_match(state)
+
+s1 = LLL
+s2 = AAA
+s3 = VXXX
+s4 = VA       
+main(s1,s2,s3,s4)

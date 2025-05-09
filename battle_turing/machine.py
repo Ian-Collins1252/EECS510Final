@@ -15,6 +15,18 @@ class Machine():
     def start_round(self):
         for i in self.tapes:
             i.left_until('end')
+    
+    # check and see if any tapes are empty        
+    def empty_tape(self):
+        for i in range(0, len(self.tapes)):
+            if self.tapes[i].is_empty: # if an empty tape is found
+                break # leave loop
+            i += 1 # if tape isn't empty, increment counter
+        if i == len(self.tapes): # if counter i = number of tapes, no tapes are empty
+            return False
+        else:
+            return True
+                
             
     def state_match(self, current):
         match current:
@@ -25,6 +37,7 @@ class Machine():
                 current = 1 # link always goes first
             
             case 1: # link [2,3,4,7]
+                print(f"Link's turn: {T2}")
                 H = self.T2.get_head() # store character with the head on it
                 if self.T1.get_head() == 'O': # if link's shield is still up, remove it
                     self.T1.pop()
@@ -60,6 +73,7 @@ class Machine():
                     
                 else:
                     print(f"rejected, invalid input to t2 ({H}) in state 1")
+                    current = 15 # string rejected
                     
             case 2: # spin attack [5]
                 self.T1.right_until('P') # moves head right until P is found
@@ -113,16 +127,23 @@ class Machine():
                 self.T3.left() # move left, back onto the lowercase so bomb 2 will reset it to uppercase
                 current = 5 # back to bomb 2
             
-            case 7: # swap [0,8,11,12]
+            case 7: # swap [8,11,12]
+                
+                if self.empty_tape() == True:
+                    # empty tape found- battle is over
+                    current = 15
+                
                 self.T1.left_until('end') # reset both health tapes
                 self.T3.left_until('end') 
                 
                 if self.T4.tape.count('V') > 0 or self.T4.tape.count('G') > 0:
                     if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
                         self.T4.right_until('V')
+                        self.T4.right() # move past turn marker
                         current = 11 # enemy turn
                     else: 
                         self.T4.right_until('G')
+                        self.T4.right() # move past turn marker
                         current = 12 # ganon's turn
                     
                 else: # if there are no more V or G in T4
@@ -157,9 +178,12 @@ class Machine():
                         self.T3.right_until('G')
                         current = 9 # health check on ganon
                         break
-                else: # last enemy found but i forgor how handl
-                    
-                            
+                else: 
+                    if self.empty_tape() == True: # if anything is empty
+                        current = 15
+                    else:
+                        current = 0 # back to the start of the round
+                                  
             case 9: # health check [8,10] ensure a given entity has at least 1 health
                 self.T3.right() # move right 1
                 # check if there are 2 consecutive entity markers (if VV or VG or GV)
@@ -174,8 +198,7 @@ class Machine():
                     self.T4.pop() # remove the enemy marker
                     current = 10 # go to remove dead to start loop
                 current = 8 # entity is alive, return to status checks
-                    
-            
+                          
             case 10: # remove dead [9] state that loops thru a tape until a section of actions is removed
                 if self.T4.tape.count('V') > 0:
                     for i in range(self.T4.head, self.T4.tape.index('V')):
@@ -192,16 +215,80 @@ class Machine():
                 self.T3.pop() # finally, remove the dead enemy from health tape
                 current = 9 # go back to health checking
             
-            case 11:
-                pass
+            case 11: # enemy [4,7,14]
+                H = self.T4.get_head() # save char head is on for convenience
+                if H == 'V' or H == 'G':
+                    current = 14 # this enemy is out of turns- remove
+                    
+                elif H == 'A':
+                    self.T4.pop()
+                    if self.T1.get_head != 'O': # if link isn't shielding
+                        self.T1.pop() # -1 to link
+                    current = 7 # turn over, go to swap
+                
+                elif H == 'B':
+                    self.T4.pop()
+                    current = 5 # go to bomb 1- no need to make sure enemy hits itself, bomb 1 takes care of that
             
-            case 12:
-                pass
+                else: 
+                    print(f"rejected, invalid input to t4 ({H}) in state 11")
+                    current = 15 # string rejected
+                    
+            case 12: # ganon [7,13,14]
+                H = self.T4.get_head() # save char head is on for convenience
+                if H == 'V' or H == 'G':
+                    current = 14 # ganon is out of turns- remove
+                
+                elif H == 'C': # charge attack- either does 2 damage or breaks link's shield
+                    self.T4.pop()
+                    if self.T1.get_head() == 'O': # if link is shielding
+                        self.T1.pop() # he isn't anymore!
+                        current = 7 # turn over
+                    else: # remove 1 health
+                        self.T1.pop()
+                        current = 13 # go to charge state to deal the rest of the damage
+                
+                elif H == 'A': # regular attack
+                    self.T4.pop()
+                    if self.T1.get_head != 'O': # if link isn't shielding
+                        self.T1.pop() # -1 to link
+                    current = 7 # turn over, go to swap
+                
+                elif H == 'T' # energy ball tennis!
+                self.T4.pop()
+                    if self.T1.get_head != 'O': # if link isn't shielding
+                        self.T1.pop() # -1 to link
+                    else: 
+                        self.T3.right_until('G') # -1 to self
+                        self.T3.pop()
+                    current = 7 # turn over, go to swap
+                    
+                else: 
+                    print(f"rejected, invalid input to t4 ({H}) in state 12")
+                    current = 15 # string rejected
             
-            case 13:
-                pass
+            case 13: # charge [7] only exists so ganon's charge can do 2 damage to link
+                self.T1.pop()
+                current = 7 # turn over
             
             case 14:
-                pass
+                self.T3.left_until('end') # if we're in this state then something in this tape will be popped
+                self.T3.right_until(self.T4.get_head()) # move to matching marker on health tape
+                self.T3.pop() # and remove it
+                    
+                if self.T3.tape.count('V') > 0:
+                    for i in range(self.T3.head, self.T3.tape.index('V')):
+                        self.T3.pop() # remove health until next marker
+                        i += 1
+                elif self.T3.tape.count('G') > 0:
+                    for i in range(self.T3.head, self.T3.tape.index('G')):
+                        self.T4.pop() # remove health until next marker
+                        i += 1
+                else: # if no other markers are found, this is the last enemy on the tape
+                    for i in range(self.T3.head, len(self.T3.tape)):
+                        self.T3.pop() # remove health until tape ends
+                        i += 1
+                self.T4.pop() # finally, remove the entity marker from the action tape
+                current = 7 # go back to swap state    
                
         return current
