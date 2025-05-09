@@ -33,11 +33,13 @@ class Machine():
             case 0:
                 self.start_round()
                 self.T3.right() # step right once on foes' health so link can hit them if he wants
-                print("Round start!")
+                print(f"Round start! {self.T1} | {self.T2} | {self.T3} | {self.T4}")
                 current = 1 # link always goes first
+                print(current)
+                return current
             
             case 1: # link [2,3,4,7]
-                print(f"Link's turn: {T2}")
+                print(f"Link's turn: {self.T2}")
                 H = self.T2.get_head() # store character with the head on it
                 if self.T1.get_head() == 'O': # if link's shield is still up, remove it
                     self.T1.pop()
@@ -136,7 +138,7 @@ class Machine():
                 self.T1.left_until('end') # reset both health tapes
                 self.T3.left_until('end') 
                 
-                if self.T4.tape.count('V') > 0 or self.T4.tape.count('G') > 0:
+                if self.T4.tape.count('V') >= 1 and self.T4.tape.count('G') >= 1:
                     if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
                         self.T4.right_until('V')
                         self.T4.right() # move past turn marker
@@ -145,25 +147,34 @@ class Machine():
                         self.T4.right_until('G')
                         self.T4.right() # move past turn marker
                         current = 12 # ganon's turn
+                        
+                elif self.T4.tape.count('V') == 0 and self.T4.tape.count('G') >= 1:
+                    self.T4.right_until('G')
+                    self.T4.right() # move past turn marker
+                    current = 12 # ganon's turn
+                    
+                elif self.T4.tape.count('G') == 0 and self.T4.tape.count('V') >= 1:
+                    self.T4.right_until('V')
+                    self.T4.right() # move past turn marker
+                    current = 11 # enemy turn
                     
                 else: # if there are no more V or G in T4
                     current = 8 # go to status and do a health check
             
             case 8: # status [0,9,15] check to see if anyone's dead
                 # create a temp list with only health chars on it to check if link is alive
-                temp = self.t1.tape
+                temp = self.T1.tape
                 try: 
                     temp = self.T1.tape.remove('O') # remove shield if it's there
                 except: 
-                    continue # if no shield, no need to do anything
+                    pass # if no shield, no need to do anything
                 try: 
                     temp = self.T1.tape.remove('P') # remove potion charge if it's there
                 except: 
-                    continue # if not no need to do anything
+                    pass # if not no need to do anything
                 
                 if not temp: # if the temp string is empty
                     current = 15 # link is dead, stop the machine
-                    break
                 
                 # now check if any enemies have died
                 self.T3.left_until('end') # reset enemy tapes first
@@ -173,11 +184,9 @@ class Machine():
                     if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
                         self.T3.right_until('V')
                         current = 9 # do a health check on this entity
-                        break
                     else: 
                         self.T3.right_until('G')
                         current = 9 # health check on ganon
-                        break
                 else: 
                     if self.empty_tape() == True: # if anything is empty
                         current = 15
@@ -254,8 +263,8 @@ class Machine():
                         self.T1.pop() # -1 to link
                     current = 7 # turn over, go to swap
                 
-                elif H == 'T' # energy ball tennis!
-                self.T4.pop()
+                elif H == 'T': # energy ball tennis!
+                    self.T4.pop()
                     if self.T1.get_head != 'O': # if link isn't shielding
                         self.T1.pop() # -1 to link
                     else: 
@@ -289,6 +298,6 @@ class Machine():
                         self.T3.pop() # remove health until tape ends
                         i += 1
                 self.T4.pop() # finally, remove the entity marker from the action tape
-                current = 7 # go back to swap state    
-               
+                current = 7 # go back to swap state 
+        print(current)          
         return current

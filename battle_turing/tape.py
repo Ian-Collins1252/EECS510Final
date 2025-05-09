@@ -21,7 +21,7 @@ class Tape():
             return False
             
     def right(self): # move head right one space on the tape
-        if self.head + 1 <= len(self.tape-1): # only move if there's tape available
+        if self.head + 1 <= len(self.tape)-1: # only move if there's tape available
             self.head += 1
         else: # don't move if no tape available
             pass
@@ -54,7 +54,7 @@ class Tape():
                self.head = self.tape.index(char, self.head) # throws an error if char not found
            except:
                print(f"char {char} not present, moving to end") # placeholder for troubleshooting
-               self.head = len(self.tape-1)
+               self.head = len(self.tape)-1
         else: # move to the rightmost end
-            self.head = len(self.tape-1)
+            self.head = len(self.tape)-1
     
