@@ -94,6 +94,7 @@ class Machine():
                     if self.T3.tape[i] == 'v' or self.T3.tape[i] == 'g': 
                         self.T3.tape[i] = self.T3.tape[i].capitalize()
                         self.T3.head = i + 1 # move right so the char will not be considered again
+                        i += 1 # increment counter
                     
                     # change upper to lowercase to indicate that this enemy was hurt    
                     elif self.T3.tape[i] == 'V' or self.T3.tape[i] == 'G':
@@ -102,7 +103,7 @@ class Machine():
                         current = 6 # to bomb 3
                         break # leave loop so state will change
                     else:
-                        continue # disregard all other chars            
+                        i += 1 # keep moving            
                 self.T3.head = len(self.T3.tape)-1 # after completing the loop, make sure the head is correct
                 current = 7 # to swap state
                 
@@ -144,17 +145,52 @@ class Machine():
                     break
                 
                 # now check if any enemies have died
+                self.T3.left_until('end') # reset enemy tapes first
+                self.T4.left_until('end')
+                
                 if self.T3.tape.count('V') > 0 or self.T3.tape.count('G') > 0:
                     if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
                         self.T3.right_until('V')
+                        current = 9 # do a health check on this entity
+                        break
                     else: 
                         self.T3.right_until('G')
+                        current = 9 # health check on ganon
+                        break
+                else: # last enemy found but i forgor how handl
+                    
                             
-            case 9:
-                pass
+            case 9: # health check [8,10] ensure a given entity has at least 1 health
+                self.T3.right() # move right 1
+                # check if there are 2 consecutive entity markers (if VV or VG or GV)
+                if self.T3.get_head() == 'V' or self.T3.get_head() == 'G':
+                    
+                    self.T3.left() # move left 1 so the head is on the marker for the dead enemy
+                    if self.T3.get_head() == 'V': 
+                        self.T4.right_until('V') # find the first enemy on the turn tape
+                        # enemies are indistinguishable, so deleting the first one found is fine
+                    else: 
+                        self.T4.right_until('G') # find ganon's turns    
+                    self.T4.pop() # remove the enemy marker
+                    current = 10 # go to remove dead to start loop
+                current = 8 # entity is alive, return to status checks
+                    
             
-            case 10:
-                pass
+            case 10: # remove dead [9] state that loops thru a tape until a section of actions is removed
+                if self.T4.tape.count('V') > 0:
+                    for i in range(self.T4.head, self.T4.tape.index('V')):
+                        self.T4.pop() # remove actions until next marker
+                        i += 1
+                elif self.T4.tape.count('G') > 0:
+                    for i in range(self.T4.head, self.T4.tape.index('G')):
+                        self.T4.pop() # remove actions until next marker
+                        i += 1
+                else: # if no other markers are found, this is the last enemy on the tape
+                    for i in range(self.T4.head, len(self.T4.tape)):
+                        self.T4.pop() # remove actions until tape ends
+                        i += 1
+                self.T3.pop() # finally, remove the dead enemy from health tape
+                current = 9 # go back to health checking
             
             case 11:
                 pass
