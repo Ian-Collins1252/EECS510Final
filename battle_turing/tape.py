@@ -13,12 +13,6 @@ class Tape():
     
     def get_head(self): # return the character the head is at
         return self.tape[self.head]
-    
-    def is_empty(self): # return if the list is empty or not
-        if not self.tape:
-            return True
-        else:
-            return False
             
     def right(self): # move head right one space on the tape
         if self.head + 1 <= len(self.tape)-1: # only move if there's tape available

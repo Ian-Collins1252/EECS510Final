@@ -19,13 +19,11 @@ class Machine():
     # check and see if any tapes are empty        
     def empty_tape(self):
         for i in range(0, len(self.tapes)):
-            if self.tapes[i].is_empty: # if an empty tape is found
-                break # leave loop
-            i += 1 # if tape isn't empty, increment counter
+            if self.tapes[i].len >= 1: # if tape has more than 0 elements
+                i += 1 # tape isn't empty, increment counter
         if i == len(self.tapes): # if counter i = number of tapes, no tapes are empty
             return False
-        else:
-            return True
+        return True
                 
             
     def state_match(self, current):
@@ -35,8 +33,6 @@ class Machine():
                 self.T3.right() # step right once on foes' health so link can hit them if he wants
                 print(f"Round start! T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
                 current = 1 # link always goes first
-                print(current)
-                return current
             
             case 1: # link [2,3,4,7]
                 print(f"Link's turn: {self.T2}")
@@ -74,13 +70,18 @@ class Machine():
                     
                 elif H == 'B': # bomb
                     self.T2.pop()
+                    print(f"Link throws a bomb. T2: {self.T2}")
                     current = 4 # go to bomb 1 state
                     
                 else:
-                    print(f"rejected, invalid input to t2 ({H}) in state 1")
+                    print(f"rejected, invalid input to T2 ({H}) in state 1")
                     current = 15 # string rejected
                     
             case 2: # spin attack [5]
+                if self.T1.tape.count('P') == 0:
+                    print("rejected, no potion charge available (make sure T2 has a P before an S!)")
+                    current = 15 # rejected
+                    
                 self.T1.right_until('P') # moves head right until P is found
                 self.T1.pop() # remove P
                 
@@ -109,10 +110,10 @@ class Machine():
                 self.T1.left_until('end') # reset link's health tape
                 self.T3.left_until('end') # reset enemy health tape
                 if self.T1.get_head() == 'O': # if link has his shield up
-                    pass # damage blocked
+                    print(f"Link blocks the attack. T1: {self.T1}") # damage blocked
                 else: 
                     self.T1.pop() # -1 link health
-                print(f"Link throws a bomb. T1: {self.T1} T2: {self.T2}")
+                print(f"Link hits himself with the bomb. T1: {self.T1}")
                 current = 5 # move to bomb 2
             
             case 5: # bomb 2, part 1 of a loop to -1 all enemy health [6,7]
@@ -154,7 +155,8 @@ class Machine():
                 self.T3.left_until('end') 
                 
                 # find next to move
-                if self.T4.tape.count('V') >= 1 and self.T4.tape.count('G') >= 1:
+                print(self.T4.tape[self.T4.head:].count('V'))
+                if self.T4.tape[self.T4.head:].count('V') >= 1 and self.T4.tape[self.T4.head:].count('G') >= 1:
                     if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
                         self.T4.right_until('V')
                         self.T4.right() # move past turn marker
@@ -244,7 +246,7 @@ class Machine():
                         self.T4.pop() # remove actions until tape ends
                         i += 1
                 self.T3.pop() # finally, remove the dead enemy from health tape
-                print(f"Body despawned. T3 : {self.T3}")
+                print(f"Body despawned. T3: {self.T3} | T4: {self.T4}")
                 current = 9 # go back to health checking
             
             case 11: # enemy [4,7,14]
@@ -256,14 +258,18 @@ class Machine():
                     self.T4.pop()
                     if self.T1.get_head != 'O': # if link isn't shielding
                         self.T1.pop() # -1 to link
+                        print(f"Bokoblin attacks. T1: {self.T1} | T4: {self.T4}")
+                    else:
+                        print(f"Link blocks Bokoblin's attack. T4: {self.T4}")
                     current = 7 # turn over, go to swap
                 
                 elif H == 'B':
                     self.T4.pop()
+                    print(f"Bokoblin throws a bomb. T4: {self.T4}")
                     current = 5 # go to bomb 1- no need to make sure enemy hits itself, bomb 1 takes care of that
             
                 else: 
-                    print(f"rejected, invalid input to t4 ({H}) in state 11")
+                    print(f"rejected, invalid input to T4 ({H}) in state 11")
                     current = 15 # string rejected
                     
             case 12: # ganon [7,13,14]
@@ -275,6 +281,7 @@ class Machine():
                     self.T4.pop()
                     if self.T1.get_head() == 'O': # if link is shielding
                         self.T1.pop() # he isn't anymore!
+                        print(f"Ganon charges and breaks Link's shield! T1: {self.T1} | T4: {self.T4}")
                         current = 7 # turn over
                     else: # remove 1 health
                         self.T1.pop()
@@ -284,23 +291,30 @@ class Machine():
                     self.T4.pop()
                     if self.T1.get_head != 'O': # if link isn't shielding
                         self.T1.pop() # -1 to link
+                        print(f"Ganon attacks Link. T1: {self.T1} | T4: {self.T4}")
+                    else:
+                        print(f"Link blocks Ganon's attack. T1: {self.T1} | T4: {self.T4}")
                     current = 7 # turn over, go to swap
                 
                 elif H == 'T': # energy ball tennis!
                     self.T4.pop()
+                    print(f"Ganon uses an energy ball attack. T4: {self.T4}")
                     if self.T1.get_head != 'O': # if link isn't shielding
                         self.T1.pop() # -1 to link
+                        print(f"The energy ball hits Link. T1: {self.T1}")
                     else: 
                         self.T3.right_until('G') # -1 to self
                         self.T3.pop()
+                        print(f"Link deflects it with his shield! T3: {self.T3}")
                     current = 7 # turn over, go to swap
                     
                 else: 
-                    print(f"rejected, invalid input to t4 ({H}) in state 12")
+                    print(f"rejected, invalid input to T4 ({H}) in state 12")
                     current = 15 # string rejected
             
             case 13: # charge [7] only exists so ganon's charge can do 2 damage to link
                 self.T1.pop()
+                print(f"Ganon charges at Link! T1: {self.T1} | T4: {self.T4}")
                 current = 7 # turn over
             
             case 14:
@@ -321,6 +335,6 @@ class Machine():
                         self.T3.pop() # remove health until tape ends
                         i += 1
                 self.T4.pop() # finally, remove the entity marker from the action tape
-                current = 7 # go back to swap state 
-        print(current)          
+                print(f"Ran away. T3: {self.T3} | T4: {self.T4}")
+                current = 7 # go back to swap state          
         return current
