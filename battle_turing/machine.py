@@ -18,12 +18,14 @@ class Machine():
     
     # check and see if any tapes are empty        
     def empty_tape(self):
+        a = 0
         for i in range(0, len(self.tapes)):
-            if self.tapes[i].len >= 1: # if tape has more than 0 elements
-                i += 1 # tape isn't empty, increment counter
-        if i == len(self.tapes): # if counter i = number of tapes, no tapes are empty
+            if len(str(self.tapes[i])) > 0:
+                a += 1 # tape isn't empty, increment counter
+        if a == len(self.tapes): # if counter i = number of tapes, no tapes are empty
             return False
-        return True
+        else:
+            return True
                 
             
     def state_match(self, current):
@@ -74,13 +76,13 @@ class Machine():
                     current = 4 # go to bomb 1 state
                     
                 else:
-                    print(f"rejected, invalid input to T2 ({H}) in state 1")
                     current = 15 # string rejected
+                    raise Exception(f"String rejected, invalid input to T2 ({H}) in state 1")
                     
             case 2: # spin attack [5]
                 if self.T1.tape.count('P') == 0:
-                    print("rejected, no potion charge available (make sure T2 has a P before an S!)")
                     current = 15 # rejected
+                    raise Exception("String rejected, no potion charge available (make sure T2 has a P before an S!)")
                     
                 self.T1.right_until('P') # moves head right until P is found
                 self.T1.pop() # remove P
@@ -147,19 +149,20 @@ class Machine():
             case 7: # swap [8,11,12]
                 
                 if self.empty_tape() == True:
-                    print(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
                     # empty tape found- battle is over
                     current = 15
+                    raise Exception(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
+                    #return current
                 
                 self.T1.left_until('end') # reset both health tapes
                 self.T3.left_until('end') 
                 
                 # find next to move
-                print(self.T4.tape[self.T4.head:].count('V'))
                 if self.T4.tape[self.T4.head:].count('V') >= 1 and self.T4.tape[self.T4.head:].count('G') >= 1:
                     if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
                         self.T4.right_until('V')
                         self.T4.right() # move past turn marker
+                        print(self.T4.tape[self.T4.head], self.T4.head)
                         print(f"Bokoblin's turn. T4: {self.T4}")
                         current = 11 # enemy turn
                     else: 
@@ -168,15 +171,17 @@ class Machine():
                         print(f"Ganon's turn. T4: {self.T4}")
                         current = 12 # ganon's turn
                         
-                elif self.T4.tape.count('V') == 0 and self.T4.tape.count('G') >= 1:
+                elif self.T4.tape[self.T4.head:].count('V') == 0 and self.T4.tape[self.T4.head:].count('G') >= 1:
                     self.T4.right_until('G')
                     self.T4.right() # move past turn marker
                     print(f"Ganon's turn. T4: {self.T4}")
                     current = 12 # ganon's turn
                     
-                elif self.T4.tape.count('G') == 0 and self.T4.tape.count('V') >= 1:
+                elif self.T4.tape[self.T4.head:].count('G') == 0 and self.T4.tape[self.T4.head:].count('V') >= 1:
+                    print(self.T4.tape[self.T4.head:].count('V'))
                     self.T4.right_until('V')
                     self.T4.right() # move past turn marker
+                    print(self.T4.tape[self.T4.head], self.T4.head)
                     print(f"Bokoblin's turn. T4: {self.T4}")
                     current = 11 # enemy turn
                     
@@ -196,26 +201,33 @@ class Machine():
                     pass # if not no need to do anything
                 
                 if not temp: # if the temp string is empty
-                    print(f"Link is dead, the battle is over. T1: {self.T1}")
                     current = 15 # link is dead, stop the machine
+                    raise Exception(f"Link is dead, the battle is over. T1: {self.T1}")
                 
                 # now check if any enemies have died
                 self.T3.left_until('end') # reset enemy tapes first
                 self.T4.left_until('end')
                 
-                if self.T3.tape.count('V') > 0 or self.T3.tape.count('G') > 0:
+                if self.T3.tape.count('V') >= 1 and self.T3.tape.count('G') >= 1:
                     if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
                         self.T3.right_until('V')
                         current = 9 # do a health check on this entity
                     else: 
                         self.T3.right_until('G')
                         current = 9 # health check on ganon
-                else: 
-                    if self.empty_tape() == True: # if anything is empty
-                        print(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
-                        current = 15
-                    else:
-                        current = 0 # back to the start of the round
+                elif self.T3.tape.count('V') == 0 and self.T3.tape.count('G') >= 1:
+                    self.T3.right_until('G')
+                    current = 9 # health check on ganon
+                    
+                elif self.T3.tape.count('G') == 0 and self.T3.tape.count('V') >= 1:
+                    self.T3.right_until('V')
+                    current = 9 # do a health check on this entity
+                
+                if self.empty_tape() == True: # if anything is empty
+                    current = 15
+                    raise Exception(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
+                else:
+                    current = 0 # back to the start of the round
                                   
             case 9: # health check [8,10] ensure a given entity has at least 1 health
                 self.T3.right() # move right 1
@@ -269,8 +281,8 @@ class Machine():
                     current = 5 # go to bomb 1- no need to make sure enemy hits itself, bomb 1 takes care of that
             
                 else: 
-                    print(f"rejected, invalid input to T4 ({H}) in state 11")
                     current = 15 # string rejected
+                    raise Exception(f"String rejected, invalid input to T4 ({H}) in state 11")
                     
             case 12: # ganon [7,13,14]
                 H = self.T4.get_head() # save char head is on for convenience
@@ -309,8 +321,8 @@ class Machine():
                     current = 7 # turn over, go to swap
                     
                 else: 
-                    print(f"rejected, invalid input to T4 ({H}) in state 12")
                     current = 15 # string rejected
+                    raise Exception(f"String rejected, invalid input to T4 ({H}) in state 12")
             
             case 13: # charge [7] only exists so ganon's charge can do 2 damage to link
                 self.T1.pop()

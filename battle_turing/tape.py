@@ -5,7 +5,6 @@ class Tape():
         self.tape = [] # a list will act as a tape
         for i in str_in: # each char in input string will be its own entry on the list
             self.tape.append(i)
-        self.len = len(self.tape)
         self.head = 0 # integer tracking where the head is on the tape using list index
           
     def __str__(self): # when printing a Tape object, return the contents of the tape as one string
@@ -37,7 +36,7 @@ class Tape():
            try:
                self.head = self.tape.index(char, 0, self.head) # throws an error if char not found
            except:
-               print(f"char {char} not present, moving to end") # placeholder for troubleshooting
+               #print(f"char {char} not present, moving to end") # placeholder for troubleshooting
                self.head = 0
         else: # move to the leftmost end
             self.head = 0
@@ -47,7 +46,7 @@ class Tape():
            try:
                self.head = self.tape.index(char, self.head) # throws an error if char not found
            except:
-               print(f"char {char} not present, moving to end") # placeholder for troubleshooting
+               #print(f"char {char} not present, moving to end") # placeholder for troubleshooting
                self.head = len(self.tape)-1
         else: # move to the rightmost end
             self.head = len(self.tape)-1
