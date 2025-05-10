@@ -49,3 +49,8 @@ As most of his stories end, Ganondorf is slain by the Goddess's chosen hero, Lin
 Bokoblins can fight Link to prevent him from saving the Kingdom of Hyrule.
 ###### Dead
 Unlike most living things, Bokoblins can be resurrected during the Bloodmoon due to Ganondorf's malice.
+
+## Combat
+To start a battle, first download the battle_turing folder. Open a terminal, `cd` into the folder, and type `python main.py`. From there, simply follow the instructions printed to the terminal. Make sure you scroll up a bit and read all of them! Once you've followed all the prompts, check the returned exception to see if your strings were accepted (the battle ended successfully) or rejected.
+
+The combat system was modeled using a Turing machine with four tapes. There is one for Link's health, one for Link's actions, one for the enemies' healths, and one for the enemies' actions. Due to its complexity, you may encounter a few bugs in the machine that escaped debugging- I (Del) kindly request you remove points from only me as I was solely responsible for this portion of the project. Thank you and have fun!
