@@ -33,7 +33,7 @@ class Machine():
             case 0:
                 self.start_round()
                 self.T3.right() # step right once on foes' health so link can hit them if he wants
-                print(f"Round start! {self.T1} | {self.T2} | {self.T3} | {self.T4}")
+                print(f"Round start! T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
                 current = 1 # link always goes first
                 print(current)
                 return current
@@ -48,17 +48,20 @@ class Machine():
                 if H == 'A': # if link attacks
                     self.T2.pop() # remove char from turn queue 
                     self.T3.pop() # -1 health to the closest enemy
+                    print(f"Link attacks. T2: {self.T2} | T3: {self.T3}")
                     current = 7 # turn over, go to swap state
                 
                 elif H == 'E': # if link eats
                     self.T2.pop() # remove char from turn queue
                     self.T1.add('L') # +1 health to link 
-                    self.T1.left() 
+                    self.T1.left()
+                    print(f"Link eats. T1: {self.T1} | T2: {self.T2}")
                     current = 7 # turn over, go to swap state
                     
                 elif H == 'O': # if link shields 
                     self.T1.add('O') # add shield to link
                     self.T1.left()
+                    print(f"Link shields. T1: {self.T1}")
                     current = 7 # turn over, go to swap state
                 
                 elif H == 'P': # if link uses a potion
@@ -81,16 +84,25 @@ class Machine():
                 self.T1.right_until('P') # moves head right until P is found
                 self.T1.pop() # remove P
                 
-                if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
+                # move T3 tape head to the entity marker closest to the left
+                if self.T3.tape.count('V') >= 1 and self.T3.tape.count('G') >= 1:
+                    if self.T3.tape.index('V') < self.T3.tape.index('G'): # right until V or G, whatever's first
+                        self.T3.right_until('V')
+                    else: 
+                        self.T3.right_until('G')    
+                elif self.T3.tape.count('V') == 0 and self.T3.tape.count('G') >= 1: # only ganon
+                    self.T3.right_until('G')  
+                else: # no ganon
                     self.T3.right_until('V')
-                else: 
-                    self.T3.right_until('G')
+                
                 self.T3.pop() # -1 health to closest enemy
+                print(f"Link does a spin attack. T1: {self.T1} | T3: {self.T3}")
                 current = 5 # go to bomb 2 state, which will take care of -1 health to all enemies
             
             case 3: # potion [7]
                 self.T1.right_until('end') # go to the right end of link's health
                 self.T1.add('P') # add potion charge
+                print(f"Link uses a potion. T1: {self.T1}")
                 current = 7 # go to swap state
             
             case 4: # bomb 1, aka the part of bomb that -1 health to link [5]
@@ -100,6 +112,7 @@ class Machine():
                     pass # damage blocked
                 else: 
                     self.T1.pop() # -1 link health
+                print(f"Link throws a bomb. T1: {self.T1} T2: {self.T2}")
                 current = 5 # move to bomb 2
             
             case 5: # bomb 2, part 1 of a loop to -1 all enemy health [6,7]
@@ -121,6 +134,7 @@ class Machine():
                     else:
                         i += 1 # keep moving            
                 self.T3.head = len(self.T3.tape)-1 # after completing the loop, make sure the head is correct
+                print(f"All enemies take damage. T3: {self.T3}")
                 current = 7 # to swap state
                 
             case 6: # bomb 3, part 2 of the loop to -1 all enemy health [5]
@@ -132,30 +146,36 @@ class Machine():
             case 7: # swap [8,11,12]
                 
                 if self.empty_tape() == True:
+                    print(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
                     # empty tape found- battle is over
                     current = 15
                 
                 self.T1.left_until('end') # reset both health tapes
                 self.T3.left_until('end') 
                 
+                # find next to move
                 if self.T4.tape.count('V') >= 1 and self.T4.tape.count('G') >= 1:
                     if self.T4.tape.index('V') < self.T4.tape.index('G'): # right until V or G, whatever's first
                         self.T4.right_until('V')
                         self.T4.right() # move past turn marker
+                        print(f"Bokoblin's turn. T4: {self.T4}")
                         current = 11 # enemy turn
                     else: 
                         self.T4.right_until('G')
                         self.T4.right() # move past turn marker
+                        print(f"Ganon's turn. T4: {self.T4}")
                         current = 12 # ganon's turn
                         
                 elif self.T4.tape.count('V') == 0 and self.T4.tape.count('G') >= 1:
                     self.T4.right_until('G')
                     self.T4.right() # move past turn marker
+                    print(f"Ganon's turn. T4: {self.T4}")
                     current = 12 # ganon's turn
                     
                 elif self.T4.tape.count('G') == 0 and self.T4.tape.count('V') >= 1:
                     self.T4.right_until('V')
                     self.T4.right() # move past turn marker
+                    print(f"Bokoblin's turn. T4: {self.T4}")
                     current = 11 # enemy turn
                     
                 else: # if there are no more V or G in T4
@@ -174,6 +194,7 @@ class Machine():
                     pass # if not no need to do anything
                 
                 if not temp: # if the temp string is empty
+                    print(f"Link is dead, the battle is over. T1: {self.T1}")
                     current = 15 # link is dead, stop the machine
                 
                 # now check if any enemies have died
@@ -189,6 +210,7 @@ class Machine():
                         current = 9 # health check on ganon
                 else: 
                     if self.empty_tape() == True: # if anything is empty
+                        print(f"A tape is empty, the battle is over. T1: {self.T1} | T2: {self.T2} | T3: {self.T3} | T4: {self.T4}")
                         current = 15
                     else:
                         current = 0 # back to the start of the round
@@ -197,7 +219,7 @@ class Machine():
                 self.T3.right() # move right 1
                 # check if there are 2 consecutive entity markers (if VV or VG or GV)
                 if self.T3.get_head() == 'V' or self.T3.get_head() == 'G':
-                    
+                    print(f"Health check found something. T3: {self.T3} | T4: {self.T4}")
                     self.T3.left() # move left 1 so the head is on the marker for the dead enemy
                     if self.T3.get_head() == 'V': 
                         self.T4.right_until('V') # find the first enemy on the turn tape
@@ -222,6 +244,7 @@ class Machine():
                         self.T4.pop() # remove actions until tape ends
                         i += 1
                 self.T3.pop() # finally, remove the dead enemy from health tape
+                print(f"Body despawned. T3 : {self.T3}")
                 current = 9 # go back to health checking
             
             case 11: # enemy [4,7,14]
